@@ -1,5 +1,9 @@
 version: 2.1
 
+# 1. Define the SonarCloud Orb for easier, standard integration
+orbs:
+  sonarcloud: sonarsource/sonarcloud@1.0.3
+
 # Define reusable executors
 executors:
   node-executor:
@@ -22,9 +26,9 @@ commands:
             cd << parameters.directory >>
             npm ci
 
-# Define jobs
+# Define jobs (Ensuring ALL jobs are correctly nested under this key)
 jobs:
-  # Security checks job
+  # 1. Security checks job (npm audit)
   security-check:
     executor: node-executor
     steps:
@@ -51,7 +55,7 @@ jobs:
           command: |
             echo "Security audit completed. Review any vulnerabilities above."
 
-  # Backend build and test job
+  # 2. Backend build and test job
   backend-build-test:
     executor: node-executor
     steps:
@@ -63,20 +67,18 @@ jobs:
           command: |
             cd backend
             echo "Linting backend code..."
-            # Add linting command when configured
       - run:
           name: Run backend tests
           command: |
             cd backend
             echo "Running backend tests..."
-            # npm test when tests are implemented
       - run:
           name: Build backend
           command: |
             cd backend
             echo "Backend build successful"
 
-  # Frontend build and test job
+  # 3. Frontend build and test job
   frontend-build-test:
     executor: node-executor
     steps:
@@ -88,13 +90,11 @@ jobs:
           command: |
             cd frontend
             echo "Linting frontend code..."
-            # Add linting command when configured
       - run:
           name: Run frontend tests
           command: |
             cd frontend
             echo "Running frontend tests..."
-            # npm test when tests are implemented
       - run:
           name: Build frontend for production
           command: |
@@ -105,27 +105,20 @@ jobs:
           paths:
             - frontend/build
 
-  # Code quality and SAST (Static Application Security Testing)
-code-quality:
-  executor: node-executor
-  steps:
-    - checkout
-    - run:
-        name: Install SonarQube Scanner
-        command: npm install -g sonar-scanner
-    - run:
-        name: Run SonarQube Scan
-        command: |
-          sonar-scanner \
-            -Dsonar.projectKey=RahilSir_APDS-Payment-Portal \
-            -Dsonar.organization=rahilsir \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=$SONAR_TOKEN
+  # 4. Code quality and SAST (SonarCloud Scan) - USING ORB
+  code-quality:
+    executor: node-executor
+    steps:
+      - checkout
+      # Use the analyze command from the SonarCloud Orb
+      - sonarcloud/analyze:
+          # Replace with your actual project key from SonarCloud
+          projectkey: "RahilSir_APDS-Payment-Portal" 
+          # Use project_root to ensure the scanner runs from the correct directory if needed
+          # project_root: "." 
+          # The Orb automatically uses the SONAR_TOKEN environment variable from the UI.
 
-
-
-  # Dependency check
+  # 5. Dependency check
   dependency-check:
     executor: node-executor
     steps:
@@ -137,7 +130,7 @@ code-quality:
             cd backend && npm outdated || true
             cd ../frontend && npm outdated || true
 
-  # SSL certificate validation
+  # 6. SSL certificate validation (Placeholder)
   ssl-validation:
     executor: node-executor
     steps:
@@ -158,27 +151,25 @@ workflows:
       # Security checks run first
       - security-check
       
-      # Code quality checks
+      # Quality and dependency checks run after security
       - code-quality:
           requires:
             - security-check
-      
-      # Dependency checks
+            
       - dependency-check:
           requires:
             - security-check
-      
-      # Backend pipeline
+            
+      # Build and test pipelines
       - backend-build-test:
           requires:
             - security-check
-      
-      # Frontend pipeline
+            
       - frontend-build-test:
           requires:
             - security-check
-      
-      # SSL validation
+            
+      # Final checks/deployment (requires successful builds)
       - ssl-validation:
           requires:
             - backend-build-test
@@ -188,6 +179,7 @@ workflows:
   nightly-security:
     triggers:
       - schedule:
+          # Runs every night at midnight UTC
           cron: "0 0 * * *"
           filters:
             branches:
@@ -197,4 +189,3 @@ workflows:
     jobs:
       - security-check
       - dependency-check
-
