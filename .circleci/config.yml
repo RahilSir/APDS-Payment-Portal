@@ -4,24 +4,30 @@ jobs:
   sonarcloud-analysis:
     docker:
       - image: cimg/node:18.17
+    working_directory: ~/project/frontend
     steps:
       - checkout
 
-      # Install dependencies
+      # Go into frontend folder before installing dependencies
       - run:
           name: Install Dependencies
-          command: npm install
+          command: |
+            cd frontend
+            npm install
 
-      # Optional: run tests
+      # Optional: run tests if available
       - run:
           name: Run Tests
-          command: npm test || echo "No tests to run"
+          command: |
+            cd frontend
+            npm test || echo "No tests to run"
 
       # Run SonarCloud Scan
       - run:
           name: Run SonarCloud Analysis
           command: |
             npm install -g sonar-scanner
+            cd frontend
             sonar-scanner \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
