@@ -8,44 +8,38 @@ jobs:
     steps:
       - checkout
 
-      # Navigate to the correct directory
-      - run:
-          name: Set Working Directory
-          command: cd APDS-Payment-Portal && pwd
-
       # Install backend dependencies
       - run:
           name: Install Backend Dependencies
           command: |
-            cd APDS7311-w_POE_TASK_2-Main/backend
+            cd backend
             npm install
 
       # Install frontend dependencies
       - run:
           name: Install Frontend Dependencies
           command: |
-            cd APDS7311-w_POE_TASK_2-Main/frontend
+            cd frontend
             npm install
 
       # Run backend tests (optional)
       - run:
           name: Run Backend Tests
           command: |
-            cd APDS7311-w_POE_TASK_2-Main/backend
+            cd backend
             npm test || echo "No backend tests configured"
 
       # Run frontend tests (optional)
       - run:
           name: Run Frontend Tests
           command: |
-            cd APDS7311-w_POE_TASK_2-Main/frontend
+            cd frontend
             npm test -- --passWithNoTests || echo "No frontend tests configured"
 
       # Run SonarCloud Scan
       - run:
           name: Run SonarCloud Analysis
           command: |
-            cd APDS-Payment-Portal
             npx -y sonar-scanner@5.0.1 \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
