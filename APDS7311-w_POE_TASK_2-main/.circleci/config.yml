@@ -1,119 +1,34 @@
 version: 2.1
-
 jobs:
   sonarcloud-analysis:
     docker:
-      - image: cimg/node:18.17
+      - image: cimg/node:18.17-browsers  # Includes Java for SonarScanner
+    working_directory: ~/project  # Repo root
     steps:
       - checkout
-
-      # Install dependencies
       - run:
-          name: Install Dependencies
-          command: npm install
-
-      # Optional: run tests
-      - run:
-          name: Run Tests
-          command: npm test || echo "No tests to run"
-
-      # Run SonarCloud Scan
+          name: Enter Project Directory
+          command: |
+            if [ -d "APDS7311-w_POE_TASK_2-main" ]; then
+              cd APDS7311-w_POE_TASK_2-main
+              echo "Entered project directory: $(pwd)"
+              ls -la  # Optional: Logs files for debugging
+            else
+              echo "Project directory 'APDS7311-w_POE_TASK_2-main' not found!"
+              ls -la ~/project  # Shows what's actually there
+              exit 1
+            fi
       - run:
           name: Run SonarCloud Analysis
           command: |
-            npm install -g sonar-scanner
-            sonar-scanner \
+            npx sonar-scanner \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
-
 workflows:
-  version: 2
+  version: 2.1  # Updated to match overall version
   build_and_analyze:
     jobs:
       - sonarcloud-analysis
-S
-orbs:
-  sonarcloud: sonarsource/sonarcloud@1.0.3
-
-executors:
-  node-executor:
-    docker:
-      - image: cimg/node:18.17.0
-    working_directory: ~/project
-
-commands:
-  install-dependencies:
-    description: "Install dependencies in a subdirectory"
-    parameters:
-      directory:
-        type: string
-        default: "."
-    steps:
-      - run:
-          name: Install dependencies in << parameters.directory >>
-          command: |
-            cd APDS7311-w_POE_TASK_2-main/<< parameters.directory >>
-            npm install
-
-jobs:
-  backend-build:
-    executor: node-executor
-    steps:
-      - checkout
-      - install-dependencies:
-          directory: "backend"
-      - run:
-          name: Build backend
-          command: |
-            cd APDS7311-w_POE_TASK_2-main/backend
-            npm run build || echo "No backend build script found"
-      - run:
-          name: Run backend tests
-          command: |
-            cd APDS7311-w_POE_TASK_2-main/backend
-            npm test || echo "No backend test script found"
-
-  frontend-build:
-    executor: node-executor
-    steps:
-      - checkout
-      - install-dependencies:
-          directory: "frontend"
-      - run:
-          name: Build frontend
-          command: |
-            cd APDS7311-w_POE_TASK_2-main/frontend
-            npm run build || echo "No frontend build script found"
-      - run:
-          name: Run frontend tests
-          command: |
-            cd APDS7311-w_POE_TASK_2-main/frontend
-            npm test || echo "No frontend test script found"
-
-  code-quality:
-    executor: node-executor
-    steps:
-      - checkout
-      - run:
-          name: Install SonarCloud scanner dependencies
-          command: |
-            cd APDS7311-w_POE_TASK_2-main
-            npm install
-      - sonarcloud/analyze:
-          projectkey: "Areeb-Ibrahim_APDS-Payment-Portal"
-          organization: "areeb-ibrahim"
-
-workflows:
-  version: 2
-  build-and-scan:
-    jobs:
-      - backend-build
-      - frontend-build:
-          requires:
-            - backend-build
-      - code-quality:
-          requires:
-            - frontend-build
