@@ -11,7 +11,7 @@ jobs:
       # Navigate to the correct directory
       - run:
           name: Set Working Directory
-          command: cd APDS7311-w_POE_TASK_2-Main && pwd
+          command: cd APDS-Payment-Portal && pwd
 
       # Install backend dependencies
       - run:
@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Run SonarCloud Analysis
           command: |
-            cd APDS7311-w_POE_TASK_2-Main
+            cd APDS-Payment-Portal
             npx -y sonar-scanner@5.0.1 \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
