@@ -1,5 +1,40 @@
 version: 2.1
 
+jobs:
+  sonarcloud-analysis:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+
+      # Install dependencies
+      - run:
+          name: Install Dependencies
+          command: npm install
+
+      # Optional: run tests
+      - run:
+          name: Run Tests
+          command: npm test || echo "No tests to run"
+
+      # Run SonarCloud Scan
+      - run:
+          name: Run SonarCloud Analysis
+          command: |
+            npm install -g sonar-scanner
+            sonar-scanner \
+              -Dsonar.organization=Areeb-Ibrahim \
+              -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.login=$SONAR_TOKEN
+
+workflows:
+  version: 2
+  build_and_analyze:
+    jobs:
+      - sonarcloud-analysis
+S
 orbs:
   sonarcloud: sonarsource/sonarcloud@1.0.3
 
