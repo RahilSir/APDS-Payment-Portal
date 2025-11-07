@@ -23,8 +23,7 @@ jobs:
       - run:
           name: Run SonarCloud Analysis
           command: |
-            npm install -g sonar-scanner
-            sonar-scanner \
+            npx sonar-scanner \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
               -Dsonar.sources=. \
