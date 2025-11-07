@@ -11,41 +11,41 @@ jobs:
       # Navigate to the correct directory
       - run:
           name: Set Working Directory
-          command: cd APDS7311-w_POE_TASK_3-Main && pwd
+          command: cd APDS7311-w_POE_TASK_2-Main && pwd
 
       # Install backend dependencies
       - run:
           name: Install Backend Dependencies
           command: |
-            cd APDS7311-w_POE_TASK_3-Main/backend
+            cd APDS7311-w_POE_TASK_2-Main/backend
             npm install
 
       # Install frontend dependencies
       - run:
           name: Install Frontend Dependencies
           command: |
-            cd APDS7311-w_POE_TASK_3-Main/frontend
+            cd APDS7311-w_POE_TASK_2-Main/frontend
             npm install
 
       # Run backend tests (optional)
       - run:
           name: Run Backend Tests
           command: |
-            cd APDS7311-w_POE_TASK_3-Main/backend
+            cd APDS7311-w_POE_TASK_2-Main/backend
             npm test || echo "No backend tests configured"
 
       # Run frontend tests (optional)
       - run:
           name: Run Frontend Tests
           command: |
-            cd APDS7311-w_POE_TASK_3-Main/frontend
+            cd APDS7311-w_POE_TASK_2-Main/frontend
             npm test -- --passWithNoTests || echo "No frontend tests configured"
 
       # Run SonarCloud Scan
       - run:
           name: Run SonarCloud Analysis
           command: |
-            cd APDS7311-w_POE_TASK_3-Main
+            cd APDS7311-w_POE_TASK_2-Main
             npx -y sonar-scanner@5.0.1 \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
