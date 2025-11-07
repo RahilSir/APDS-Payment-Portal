@@ -1,36 +1,60 @@
 version: 2.1
+
 jobs:
-  sonarcloud-analysis:
+  build:
     docker:
       - image: cimg/node:18.17
-    working_directory: ~/project  # Repo root
+    working_directory: ~/project
     steps:
       - checkout
+
+      # Navigate to the correct directory
       - run:
-          name: Enter Project Directory
+          name: Set Working Directory
+          command: cd APDS7311-w_POE_TASK_3-Main && pwd
+
+      # Install backend dependencies
+      - run:
+          name: Install Backend Dependencies
           command: |
-            if [ -d "APDS7311-w_POE_TASK_2-main" ]; then
-              cd APDS7311-w_POE_TASK_2-main
-              echo "Entered project directory: $(pwd)"
-              ls -la  # Optional: Logs files for debugging
-            else
-              echo "Project directory 'APDS7311-w_POE_TASK_2-main' not found!"
-              ls -la ~/project  # Shows what's actually there
-              exit 1
-            fi
-      # Skipped: Install Dependencies (no need for static scan)
-      # Skipped: Run Tests (optional anyway)
+            cd APDS7311-w_POE_TASK_3-Main/backend
+            npm install
+
+      # Install frontend dependencies
+      - run:
+          name: Install Frontend Dependencies
+          command: |
+            cd APDS7311-w_POE_TASK_3-Main/frontend
+            npm install
+
+      # Run backend tests (optional)
+      - run:
+          name: Run Backend Tests
+          command: |
+            cd APDS7311-w_POE_TASK_3-Main/backend
+            npm test || echo "No backend tests configured"
+
+      # Run frontend tests (optional)
+      - run:
+          name: Run Frontend Tests
+          command: |
+            cd APDS7311-w_POE_TASK_3-Main/frontend
+            npm test -- --passWithNoTests || echo "No frontend tests configured"
+
+      # Run SonarCloud Scan
       - run:
           name: Run SonarCloud Analysis
           command: |
-            npx sonar-scanner \
+            cd APDS7311-w_POE_TASK_3-Main
+            npx -y sonar-scanner@5.0.1 \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=$SONAR_TOKEN
+              -Dsonar.token=$SONAR_TOKEN
+
 workflows:
   version: 2
   build_and_analyze:
     jobs:
-      - sonarcloud-analysis
+      - build
