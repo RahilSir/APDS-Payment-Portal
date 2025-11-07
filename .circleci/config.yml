@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   sonarcloud-analysis:
     docker:
-      - image: cimg/node:18.17-browsers  # Keep for tools like wget/unzip
+      - image: cimg/node:18.17-browsers  # Includes tools like wget/unzip
     working_directory: ~/project  # Repo root
     steps:
       - checkout
@@ -21,12 +21,12 @@ jobs:
       - run:
           name: Run SonarCloud Analysis
           command: |
-            # Download latest SonarScanner CLI (bundles Java 21)
-            wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.3.0.5189-linux.zip
-            unzip -q sonar-scanner-cli-7.3.0.5189-linux.zip
+            # Download latest SonarScanner CLI v7.3.0 (bundles Java 21)
+            wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.3.0.5189-linux-x64.zip
+            unzip -q sonar-scanner-cli-7.3.0.5189-linux-x64.zip
             # Make executable and run from project dir
-            chmod +x sonar-scanner-7.3.0.5189-linux/bin/sonar-scanner
-            ./sonar-scanner-7.3.0.5189-linux/bin/sonar-scanner \
+            chmod +x sonar-scanner-7.3.0.5189-linux-x64/bin/sonar-scanner
+            ./sonar-scanner-7.3.0.5189-linux-x64/bin/sonar-scanner \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
               -Dsonar.sources=. \
