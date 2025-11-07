@@ -3,9 +3,21 @@ jobs:
   sonarcloud-analysis:
     docker:
       - image: cimg/node:18.17
-    working_directory: ~/project  # Changed to repo root
+    working_directory: ~/project  # Repo root
     steps:
       - checkout
+      - run:
+          name: Enter Project Directory
+          command: |
+            if [ -d "APDS7311-w_POE_TASK_2-main" ]; then
+              cd APDS7311-w_POE_TASK_2-main
+              echo "Entered project directory: $(pwd)"
+              ls -la  # Optional: Logs files for debugging
+            else
+              echo "Project directory 'APDS7311-w_POE_TASK_2-main' not found!"
+              ls -la ~/project  # Shows what's actually there
+              exit 1
+            fi
       - run:
           name: Install Dependencies
           command: npm install
