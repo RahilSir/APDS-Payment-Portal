@@ -11,37 +11,59 @@ executors:
 
 commands:
   install-dependencies:
-    description: "Install Node.js dependencies"
+    description: "Install dependencies in a subdirectory"
+    parameters:
+      directory:
+        type: string
+        default: "."
     steps:
       - run:
-          name: Install dependencies
+          name: Install dependencies in << parameters.directory >>
           command: |
-            cd APDS7311-w_POE_TASK_2-main
+            cd APDS7311-w_POE_TASK_2-main/<< parameters.directory >>
             npm install
 
 jobs:
-  build-test:
+  backend-build:
     executor: node-executor
     steps:
       - checkout
-      - install-dependencies
+      - install-dependencies:
+          directory: "backend"
       - run:
-          name: Build project
+          name: Build backend
           command: |
-            cd APDS7311-w_POE_TASK_2-main
-            npm run build || echo "No build script found"
+            cd APDS7311-w_POE_TASK_2-main/backend
+            npm run build || echo "No backend build script found"
       - run:
-          name: Run tests
+          name: Run backend tests
           command: |
-            cd APDS7311-w_POE_TASK_2-main
-            npm test || echo "No test script found"
+            cd APDS7311-w_POE_TASK_2-main/backend
+            npm test || echo "No backend test script found"
+
+  frontend-build:
+    executor: node-executor
+    steps:
+      - checkout
+      - install-dependencies:
+          directory: "frontend"
+      - run:
+          name: Build frontend
+          command: |
+            cd APDS7311-w_POE_TASK_2-main/frontend
+            npm run build || echo "No frontend build script found"
+      - run:
+          name: Run frontend tests
+          command: |
+            cd APDS7311-w_POE_TASK_2-main/frontend
+            npm test || echo "No frontend test script found"
 
   code-quality:
     executor: node-executor
     steps:
       - checkout
       - run:
-          name: Install dependencies for scan
+          name: Install SonarCloud scanner dependencies
           command: |
             cd APDS7311-w_POE_TASK_2-main
             npm install
@@ -53,7 +75,10 @@ workflows:
   version: 2
   build-and-scan:
     jobs:
-      - build-test
+      - backend-build
+      - frontend-build:
+          requires:
+            - backend-build
       - code-quality:
           requires:
-            - build-test
+            - frontend-build
