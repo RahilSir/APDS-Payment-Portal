@@ -27,7 +27,7 @@ jobs:
             # Make executable and run from project dir
             chmod +x sonar-scanner-7.3.0.5189-linux-x64/bin/sonar-scanner
             ./sonar-scanner-7.3.0.5189-linux-x64/bin/sonar-scanner \
-              -Dsonar.organization=Areeb-Ibrahim \
+              -Dsonar.organization=areeb-ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
