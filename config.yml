@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   sonarcloud-analysis:
     docker:
-      - image: cimg/node:18.17-browsers  # Includes Java for SonarScanner
+      - image: cimg/node:18.17-browsers  # Keep for tools like wget/unzip
     working_directory: ~/project  # Repo root
     steps:
       - checkout
@@ -21,14 +21,19 @@ jobs:
       - run:
           name: Run SonarCloud Analysis
           command: |
-            npx sonar-scanner \
+            # Download latest SonarScanner CLI (bundles Java 21)
+            wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.3.0.5189-linux.zip
+            unzip -q sonar-scanner-cli-7.3.0.5189-linux.zip
+            # Make executable and run from project dir
+            chmod +x sonar-scanner-7.3.0.5189-linux/bin/sonar-scanner
+            ./sonar-scanner-7.3.0.5189-linux/bin/sonar-scanner \
               -Dsonar.organization=Areeb-Ibrahim \
               -Dsonar.projectKey=Areeb-Ibrahim_APDS-Payment-Portal \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
 workflows:
-  version: 2.1  # Updated to match overall version
+  version: 2.1
   build_and_analyze:
     jobs:
       - sonarcloud-analysis
